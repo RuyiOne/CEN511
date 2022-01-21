@@ -1,0 +1,28 @@
+Interruts
+
+#include <xc.h>        
+void main(void)
+{       
+ 
+        TRISB = 0x3F;           // Port B bits 7 and 6 are output
+        OPTION_REGbits.T0CS = 0;               // Timer increments on instruction clock
+        INTCONbits.T0IE = 1;               // Enable interrupt on TMR0 overflow
+        OPTION_REGbits.INTEDG = 0;             // falling edge trigger the interrupt
+        INTCONbits.INTE = 1;               // enable the external interrupt
+        INTCONbits. GIE = 1;                // Global interrupt enable
+        for(;;)
+                CLRWDT();       // Idly kick the dog
+        while (1);
+}        
+ 
+void interrupt   tc_int  (void)        // interrupt function 
+ 
+{
+        if(INTCONbits.T0IF && INTCONbits.T0IE) 
+    {                                     // if timer flag is set & interrupt enabled
+                TMR0 -= 250;               // reload the timer - 250uS per interrupt
+                INTCONbits.T0IF = 0;                  // clear the interrupt flag 
+                PORTB = 0x40;             // toggle a bit to say we're alive
+        }
+ 
+}
